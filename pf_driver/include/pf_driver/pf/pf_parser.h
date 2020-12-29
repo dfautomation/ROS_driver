@@ -2,6 +2,7 @@
 
 #include <ros/ros.h>
 #include "pf_driver/pf/pf_packet.h"
+#include "pf_driver/make_unique.h"
 
 template <typename T>
 class Parser

@@ -75,12 +75,12 @@ void PFInterface::setup_param_server()
     if(expected_device_ == "R2000")
     {
         param_server_R2000_ = std::make_unique<dynamic_reconfigure::Server<pf_driver::PFDriverR2000Config> >();
-        param_server_R2000_->setCallback(boost::bind(&PFInterface::reconfig_callback_r2000, this, boost::placeholders::_1, boost::placeholders::_2));
+        param_server_R2000_->setCallback(boost::bind(&PFInterface::reconfig_callback_r2000, this, _1, _2));
     }
     else
     {
         param_server_R2300_ = std::make_unique<dynamic_reconfigure::Server<pf_driver::PFDriverR2300Config> >();
-        param_server_R2300_->setCallback(boost::bind(&PFInterface::reconfig_callback_r2300, this, boost::placeholders::_1, boost::placeholders::_2));
+        param_server_R2300_->setCallback(boost::bind(&PFInterface::reconfig_callback_r2300, this, _1, _2));
     }
 }
 
@@ -184,13 +184,13 @@ std::unique_ptr<Pipeline<PFPacket>> PFInterface::get_pipeline(std::string packet
         reader = std::shared_ptr<Reader<PFPacket>>(new ScanPublisherR2300("/cloud", "scanner"));
     }
     writer = std::shared_ptr<Writer<PFPacket>>(new PFWriter<PFPacket>(std::move(transport_), parser));
-    return std::unique_ptr<Pipeline<PFPacket>>(new Pipeline<PFPacket>(writer, reader, std::bind(&PFInterface::on_shutdown, this)));
+    return std::unique_ptr<Pipeline<PFPacket>>(new Pipeline<PFPacket>(writer, reader, boost::bind(&PFInterface::on_shutdown, this)));
 }
 
 void PFInterface::start_watchdog_timer(float duration)
 {
     int feed_time = std::floor(std::min(duration, 60.0f));
-    watchdog_timer_ = nh_.createTimer(ros::Duration(feed_time), std::bind(&PFInterface::feed_watchdog, this, std::placeholders::_1));
+    watchdog_timer_ = nh_.createTimer(ros::Duration(feed_time), boost::bind(&PFInterface::feed_watchdog, this, _1));
 }
 
 void PFInterface::feed_watchdog(const ros::TimerEvent& e)

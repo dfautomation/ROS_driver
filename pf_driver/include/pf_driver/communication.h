@@ -22,6 +22,7 @@
 #include <boost/thread.hpp>
 #include <boost/array.hpp>
 #include <boost/asio.hpp>
+#include "pf_driver/make_unique.h"
 
 using boost::asio::ip::tcp;
 using boost::asio::ip::udp;

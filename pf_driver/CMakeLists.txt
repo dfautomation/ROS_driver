@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 2.8.3)
 project(pf_driver)
 
-add_compile_options(-std=c++14)
+add_compile_options(-std=c++11)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -17,9 +17,8 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 find_package(Boost REQUIRED COMPONENTS  thread system)
-find_package(jsoncpp REQUIRED)
-get_target_property(jsoncpp_INCLUDE_DIRS jsoncpp_lib INTERFACE_INCLUDE_DIRECTORIES)
 find_package(PkgConfig REQUIRED)
+pkg_search_module(jsoncpp REQUIRED jsoncpp)
 pkg_check_modules(CURLPP REQUIRED curlpp)
 
 generate_dynamic_reconfigure_options(
@@ -46,8 +45,9 @@ catkin_package(
 
 include_directories(
   include
-  ${jsoncpp_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
+  ${jsoncpp_INCLUDE_DIRS}
 )
 
 add_executable(ros_main src/ros/ros_main.cpp
@@ -56,7 +56,9 @@ add_executable(ros_main src/ros/ros_main.cpp
                         src/pf/pf_packet.cpp
                         src/communication.cpp)
 target_link_libraries(ros_main
-  ${catkin_LIBRARIES} curlpp curl jsoncpp
+  ${Boost_LIBRARIES}
+  ${catkin_LIBRARIES} curlpp curl
+  ${jsoncpp_LIBRARIES}
 )
 add_dependencies(ros_main ${PROJECT_NAME}_gencfg)
 add_dependencies(ros_main ${${PROJECT_NAME}_EXPORTED_TARGETS})
