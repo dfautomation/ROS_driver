@@ -38,15 +38,31 @@
 using param_type = std::pair<std::string, std::string>;
 using param_map_type = std::map<std::string, std::string>;
 
-inline std::string from_array(Json::Value &val)
+inline std::string to_string(Json::Value val)
 {
-  std::string s = "";
-  for (int i = 0; i < val.size() - 1; i++)
-  {
-    s += val[i].asString() + ";";
-  }
-  s += val[val.size() - 1].asString();
-  return s;
+    if (val.isInt())
+    {
+        return std::to_string(val.asInt());
+    }
+    if (val.isDouble())
+    {
+        return std::to_string(val.asDouble());
+    }
+    if (val.isString())
+    {
+        return val.asString();
+    }
+    if (val.isArray())
+    {
+      std::string s = "";
+			for (Json::ValueIterator it = val.begin(), it_end = val.end(); it != it_end; ++it)
+			{
+				const Json::Value& vt = *it;
+        s += to_string(vt) + ";";
+      }
+      return s;
+    }
+    return std::string();
 }
 
 class CurlResource
@@ -163,10 +179,7 @@ private:
     {
       try
       {
-        if(json_resp[key].isArray())
-          json_kv[key] = from_array(json_resp[key]);
-        else
-          json_kv[key] = json_resp[key].asString();
+        json_kv[key] = to_string(json_resp[key]);
       }
       catch (std::exception &e)
       {
