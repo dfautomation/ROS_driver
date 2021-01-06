@@ -48,6 +48,7 @@ private:
     std::shared_ptr<PFSDPBase> protocol_interface_;
     std::unique_ptr<dynamic_reconfigure::Server<pf_driver::PFDriverR2000Config> > param_server_R2000_;
     std::unique_ptr<dynamic_reconfigure::Server<pf_driver::PFDriverR2300Config> > param_server_R2300_;
+    std::string frame_id_ = "scanner";
 
     enum class PFState
     {

@@ -19,6 +19,10 @@ bool PFInterface::init()
         return false;
     setup_param_server();
 
+    // Retrieving Parameters
+    ros::NodeHandle private_nh("~");
+    private_nh.param<std::string>("frame_id", frame_id_, "scanner");
+
     change_state(PFState::INIT);
     return true;
 }
@@ -173,7 +177,7 @@ std::unique_ptr<Pipeline<PFPacket>> PFInterface::get_pipeline(std::string packet
         {
             parser = std::unique_ptr<Parser<PFPacket>>(new PFR2000_C_Parser);
         }
-        reader = std::shared_ptr<Reader<PFPacket>>(new ScanPublisherR2000("/scan", "scanner"));
+        reader = std::shared_ptr<Reader<PFPacket>>(new ScanPublisherR2000("/scan", frame_id_));
     }
     else if(product_ == "R2300")
     {
@@ -181,7 +185,7 @@ std::unique_ptr<Pipeline<PFPacket>> PFInterface::get_pipeline(std::string packet
         {
             parser = std::unique_ptr<Parser<PFPacket>>(new PFR2300_C1_Parser);
         }
-        reader = std::shared_ptr<Reader<PFPacket>>(new ScanPublisherR2300("/cloud", "scanner"));
+        reader = std::shared_ptr<Reader<PFPacket>>(new ScanPublisherR2300("/cloud", frame_id_));
     }
     writer = std::shared_ptr<Writer<PFPacket>>(new PFWriter<PFPacket>(std::move(transport_), parser));
     return std::unique_ptr<Pipeline<PFPacket>>(new Pipeline<PFPacket>(writer, reader, boost::bind(&PFInterface::on_shutdown, this)));
