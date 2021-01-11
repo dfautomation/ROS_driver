@@ -121,6 +121,7 @@ private:
     void run_writer()
     {
         std::vector<std::unique_ptr<T>> packets;
+        ros::Rate rate(200);
         while(running_)
         {
             if(!writer_->get(packets))    // packets are already parsed here
@@ -133,6 +134,7 @@ private:
                     ROS_DEBUG("Queue overflow!");
             }
             packets.clear();
+            rate.sleep();
         }
         writer_->stop();
         running_ = false;
@@ -143,18 +145,21 @@ private:
     void run_reader()
     {
         std::unique_ptr<T> packet;
+        ros::Rate rate(200);
         while(running_)
         {
             // ROS_INFO("reader loop");
             if (!queue_.try_dequeue(packet))
             {
                 //TODO: reader needs to handle if no packet is received
+                rate.sleep();
                 continue;
             }
             if(packet)
             {
                 reader_->read(std::move(packet));    // here the scans will be published
             }
+            rate.sleep();
         }
         reader_->stop();
         running_ = false;
